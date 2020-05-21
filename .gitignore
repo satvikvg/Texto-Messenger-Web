@@ -26,4 +26,3 @@ yarn-debug.log*
 yarn-error.log*
 public/manifest.json
 .yarnrc
-yarn.lock
