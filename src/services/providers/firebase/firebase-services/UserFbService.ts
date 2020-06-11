@@ -112,6 +112,22 @@ export default class UserFbService implements UserService {
     }
   }
 
+  async searchUsers(searchText: string): Promise<User[]> {
+    const querySnapshot = await this.fireStore
+      .collection(Collections.Users)
+      .where("userName", ">=", searchText)
+      .where("userName", "<=", searchText + "\uf8ff")
+      .withConverter(userProfileConverter)
+      .get();
+
+    const users: User[] = [];
+    querySnapshot.forEach((document) => {
+      users.push(document.data() as User);
+    });
+
+    return users;
+  }
+
   signOut(): Promise<void> {
     return this.auth.signOut();
   }

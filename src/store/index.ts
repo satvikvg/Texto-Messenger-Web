@@ -5,17 +5,24 @@ import createSagaMiddleware from "redux-saga";
 import logger from "redux-logger";
 import authReducer from "./authentication/reducer";
 import settingsReducer from "./settings/reducer";
+import chatsReducer from "./chats/reducer";
 import * as authenticationActions from "./authentication/actions";
 import * as settingsActions from "./settings/actions";
+import * as chatsActions from "./chats/actions";
 import { sagas } from "../sagas";
 import { StateType, ActionType } from "typesafe-actions";
 
 const sagaMiddleware = createSagaMiddleware();
 
-export const routeAction = { settingsActions, authenticationActions };
+export const routeAction = {
+  settingsActions,
+  authenticationActions,
+  chatsActions,
+};
 export const rootReducer = combineReducers({
   authentication: authReducer,
   settings: settingsReducer,
+  chats: chatsReducer,
 });
 
 export type RootStore = StateType<typeof import("./index").default>;

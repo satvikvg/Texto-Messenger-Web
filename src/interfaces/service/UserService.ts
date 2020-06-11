@@ -33,5 +33,7 @@ export default interface UserService {
 
   confirmVerificationCode(verificationCode: string): Promise<string | null>;
 
+  searchUsers(searchText: string): Promise<User[]>;
+
   signOut(): void;
 }
