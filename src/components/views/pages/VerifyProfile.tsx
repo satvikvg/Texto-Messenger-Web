@@ -10,7 +10,7 @@ import {
   TextField,
   Button,
 } from "@material-ui/core";
-import User from "../../../interfaces/modals/User";
+import IUser from "../../../interfaces/modals/User";
 import { useTypedSelector } from "../../../store";
 import { useDispatch } from "react-redux";
 import { saveUserProfileAsync } from "../../../store/settings/actions";
@@ -55,7 +55,7 @@ export const VerifyProfile: React.FC<{}> = (props) => {
 
   const userProfile = useTypedSelector((store) => store.settings.userProfile);
 
-  const [user, setUser] = useState<User>(
+  const [user, setUser] = useState<IUser>(
     activeUser
       ? activeUser
       : {
@@ -63,12 +63,14 @@ export const VerifyProfile: React.FC<{}> = (props) => {
           userName: "",
           displayName: null,
           email: null,
+          emailVerified: false,
           phoneNumber: null,
           photoURL: null,
           bio: null,
-          emailVerified: false,
           isOnline: false,
           lastSeen: null,
+          createdOn: new Date(),
+          updatedOn: new Date(),
         }
   );
 

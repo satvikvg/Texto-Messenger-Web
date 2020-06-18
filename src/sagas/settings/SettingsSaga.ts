@@ -1,6 +1,6 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import ServiceProviderFactory from "../../services/ServiceProvicerFactory";
-import User from "../../interfaces/modals/User";
+import IUser from "../../interfaces/modals/User";
 import {
   fetchUserProfileAsync,
   saveUserProfileAsync,
@@ -25,7 +25,7 @@ function* fetchUserProfileWorker(
   action: ReturnType<typeof fetchUserProfileAsync.request>
 ) {
   try {
-    const userProfile: User | null = yield call(() =>
+    const userProfile: IUser | null = yield call(() =>
       service.userService().getUserById(action.meta.uid)
     );
 

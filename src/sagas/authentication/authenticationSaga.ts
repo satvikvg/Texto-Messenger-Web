@@ -7,7 +7,7 @@ import {
   setAuthUser,
   signOut,
 } from "../../store/authentication/actions";
-import User from "../../interfaces/modals/User";
+import IUser from "../../interfaces/modals/User";
 import { getType } from "typesafe-actions";
 
 const service = ServiceProviderFactory.getInstance();
@@ -61,7 +61,7 @@ function* confirmOTPWorker(action: ReturnType<typeof confirmOTP.request>) {
     }
 
     // Get logged in user details from database.
-    let user: User = yield call(() =>
+    let user: IUser = yield call(() =>
       service.userService().getUserById(userId)
     );
 

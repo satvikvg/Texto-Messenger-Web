@@ -1,5 +1,5 @@
 import React from "react";
-import Chat from "../../interfaces/modals/Chat";
+import IConversation from "../../interfaces/modals/Conversation";
 import {
   ListItem,
   ListItemAvatar,
@@ -10,6 +10,8 @@ import {
   makeStyles,
   createStyles,
 } from "@material-ui/core";
+import { useDispatch } from "react-redux";
+import { setActiveChat } from "../../store/chats/actions";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -24,17 +26,23 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 type ChatProps = {
-  chat: Chat;
+  chat: IConversation;
 };
 
-export const ChatItem: React.FC<ChatProps> = (props) => {
-  const primaryText = props.chat.chatName || undefined;
-  const avatarURL = props.chat.chatImage || undefined;
+export const ChatItem: React.FC<ChatProps> = ({ chat }) => {
+  const primaryText = chat.name || undefined;
+  const avatarURL = chat.avatarURL || undefined;
   const secondaryText = "Get last chat message from databse if available";
+
+  const dispatch = useDispatch();
+
+  const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    dispatch(setActiveChat(chat));
+  };
 
   const classes = useStyles();
   return (
-    <ListItem alignItems="flex-start" button>
+    <ListItem alignItems="flex-start" button onClick={handleClick}>
       <ListItemAvatar>
         <Avatar alt={primaryText} src={avatarURL} />
       </ListItemAvatar>

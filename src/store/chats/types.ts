@@ -1,18 +1,19 @@
 import { DeepReadonly } from "utility-types";
-import Chat from "../../interfaces/modals/Chat";
-import Contact from "../../interfaces/modals/Contact";
-import User from "../../interfaces/modals/User";
+import IConversation from "../../interfaces/modals/Conversation";
+import IContact from "../../interfaces/modals/Contact";
+import IUser from "../../interfaces/modals/User";
 import * as actions from "./actions";
 import { ActionType } from "typesafe-actions";
 
 // Describing the shape of the Chat's slice of store.
 export type ChatStore = DeepReadonly<{
   isLoading: boolean;
-  chats: Chat[];
+  activeChat: IConversation | null;
+  chats: IConversation[];
   searchResults: {
-    users: User[];
-    chats: Chat[];
-    contacts: Contact[];
+    users: IUser[];
+    chats: IConversation[];
+    contacts: IContact[];
   };
   error: Error | null;
 }>;
@@ -45,6 +46,9 @@ export const SEARCH_CONTACTS_SUCCESS =
   "com.textomessenger.store.chats.action.SEARCH_CONTACTS_SUCCESS";
 export const SEARCH_CONTACTS_FAILURE =
   "com.textomessenger.store.chats.action.SEARCH_CONTACTS_FAILURE";
+
+export const SET_ACTIVE_CHAT =
+  "com.textomessenger.store.chats.action.SET_ACTIVE_CHAT";
 
 // Describing different ACTIONS available.
 export type ChatsAction = ActionType<typeof actions>;

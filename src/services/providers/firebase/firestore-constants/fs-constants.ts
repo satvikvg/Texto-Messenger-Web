@@ -1,6 +1,10 @@
-export const Collections = {
-  Users: "Users",
-  Chats: "Chats",
-  Messages: "Messages",
-  Contacts: "Contacts",
-};
+export enum Collections {
+  Attachments = "Attachments",
+  Contacts = "Contacts",
+  Conversations = "Conversations",
+  Messages = "Messages",
+  Participants = "Participants",
+  Receipts = "Receipts",
+  TextoFiles = "Files",
+  Users = "Users",
+}

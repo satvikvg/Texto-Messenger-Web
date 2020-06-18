@@ -1,5 +1,5 @@
 import { ThemeOptions } from "@material-ui/core";
-import User from "../../interfaces/modals/User";
+import IUser from "../../interfaces/modals/User";
 import * as settingsActions from "./actions";
 import { ActionType } from "typesafe-actions";
 
@@ -7,7 +7,7 @@ import { ActionType } from "typesafe-actions";
 
 export type SettingsStore = Readonly<{
   isLoading: boolean;
-  userProfile: User | null;
+  userProfile: IUser | null;
   theme: ThemeOptions;
   error: Error | null;
 }>;

@@ -1,7 +1,7 @@
 import React from "react";
 import { List } from "@material-ui/core";
 import { useTypedSelector } from "../../store";
-import User from "../../interfaces/modals/User";
+import IUser from "../../interfaces/modals/User";
 import { UserItem } from "../elements/UserItem";
 
 interface ISidePanelProps {}
@@ -13,7 +13,7 @@ export const SidePanel: React.FC<ISidePanelProps> = () => {
       <List>
         {users &&
           users.map((user, index) => (
-            <UserItem key={index} user={{ ...user } as User} />
+            <UserItem key={index} user={{ ...user } as IUser} />
           ))}
       </List>
     </React.Fragment>

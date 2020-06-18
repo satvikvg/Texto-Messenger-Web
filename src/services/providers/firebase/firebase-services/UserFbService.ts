@@ -1,5 +1,5 @@
 import UserService from "../../../../interfaces/service/UserService";
-import User from "../../../../interfaces/modals/User";
+import IUser from "../../../../interfaces/modals/User";
 import { Collections } from "../firestore-constants/fs-constants";
 import firebase from "firebase";
 import UserProfile, { userProfileConverter } from "../modals/UserProfile";
@@ -28,7 +28,7 @@ export default class UserFbService implements UserService {
 
   generateNewUserProfile(uid: string) {
     const currentUser = this.auth.currentUser;
-    const user: User = {
+    const user: IUser = {
       uid: uid,
       userName: "",
       displayName: null,
@@ -39,25 +39,27 @@ export default class UserFbService implements UserService {
       emailVerified: currentUser ? currentUser.emailVerified : false,
       isOnline: false,
       lastSeen: null,
+      createdOn: new Date(),
+      updatedOn: new Date(),
     };
 
     return user;
   }
 
-  async getUserById(uid: string): Promise<User | null> {
+  async getUserById(uid: string): Promise<IUser | null> {
     const snapshot = await this.fireStore
       .collection(Collections.Users)
       .doc(uid)
       .withConverter(userProfileConverter)
       .get();
     if (snapshot.exists) {
-      return snapshot.data() as User;
+      return snapshot.data() as IUser;
     } else {
       return null;
     }
   }
 
-  async saveUser(user: User): Promise<void> {
+  async saveUser(user: IUser): Promise<void> {
     return this.fireStore
       .collection(Collections.Users)
       .doc(user.uid)
@@ -66,7 +68,7 @@ export default class UserFbService implements UserService {
   }
 
   onAuthStateChanged(
-    callBack: (user: User | null, error?: Error | null) => void
+    callBack: (user: IUser | null, error?: Error | null) => void
   ) {
     this.auth.onAuthStateChanged(
       async (fbUser) => {
@@ -112,7 +114,7 @@ export default class UserFbService implements UserService {
     }
   }
 
-  async searchUsers(searchText: string): Promise<User[]> {
+  async searchUsers(searchText: string): Promise<IUser[]> {
     const querySnapshot = await this.fireStore
       .collection(Collections.Users)
       .where("userName", ">=", searchText)
@@ -120,9 +122,9 @@ export default class UserFbService implements UserService {
       .withConverter(userProfileConverter)
       .get();
 
-    const users: User[] = [];
+    const users: IUser[] = [];
     querySnapshot.forEach((document) => {
-      users.push(document.data() as User);
+      users.push(document.data() as IUser);
     });
 
     return users;

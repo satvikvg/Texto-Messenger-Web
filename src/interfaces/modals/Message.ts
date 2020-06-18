@@ -1,13 +1,17 @@
-import Entity from "./Entity";
-import User from "./User";
+import IEntity from "./Entity";
+import IUser from "./User";
+import IConversation from "./Conversation";
 
-export default interface Message extends Entity {
-  createdOn: Date;
-  delivered: Date | null;
-  from: User;
-  isRead: boolean;
-  messageText: string | null;
-  fileURL: string | null;
-  sent: Date;
+export default interface IMessage extends IEntity {
+  conversation: IConversation;
   type: "TEXT" | "IMAGE" | "AUDIO" | "VIDEO";
+  messageText: string | null;
+  createdBy: IUser;
+  createdOn: Date;
+  updatedOn: Date;
+  deletedOn: Date | null;
+}
+
+export function isMessage(value: any): value is IMessage {
+  return (value as IMessage).conversation ? true : false;
 }

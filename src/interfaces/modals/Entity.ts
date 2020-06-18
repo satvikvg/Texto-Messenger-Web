@@ -1,3 +1,3 @@
-export default interface Entity {
+export default interface IEntity {
   uid: string;
 }

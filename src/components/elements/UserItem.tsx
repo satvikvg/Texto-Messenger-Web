@@ -1,5 +1,5 @@
 import React from "react";
-import User from "../../interfaces/modals/User";
+import IUser from "../../interfaces/modals/User";
 import {
   ListItem,
   ListItemAvatar,
@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 type UserProps = {
-  user: User;
+  user: IUser;
 };
 
 export const UserItem: React.FC<UserProps> = (props) => {

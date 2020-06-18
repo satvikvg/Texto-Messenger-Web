@@ -1,5 +1,5 @@
 import React from "react";
-import Contact from "../../interfaces/modals/Contact";
+import IContact from "../../interfaces/modals/Contact";
 import {
   ListItem,
   ListItemAvatar,
@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 type ContactProps = {
-  contact: Contact;
+  contact: IContact;
 };
 
 export const ContactItem: React.FC<ContactProps> = (props) => {

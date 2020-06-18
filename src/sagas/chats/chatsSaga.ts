@@ -6,9 +6,9 @@ import {
   searchChats,
   searchContacts,
 } from "../../store/chats/actions";
-import Chat from "../../interfaces/modals/Chat";
-import User from "../../interfaces/modals/User";
-import Contact from "../../interfaces/modals/Contact";
+import IConversation from "../../interfaces/modals/Conversation";
+import IUser from "../../interfaces/modals/User";
+import IContact from "../../interfaces/modals/Contact";
 import ServiceProviderFactory from "../../services/ServiceProvicerFactory";
 
 const service = ServiceProviderFactory.getInstance();
@@ -29,7 +29,7 @@ export function* chatsWatcherSaga() {
 
 function* getChatsWorker() {
   try {
-    const chats: Chat[] = yield call(() => {});
+    const chats: IConversation[] = yield call(() => {});
     yield put(getChats.success(chats));
   } catch (error) {
     console.error(error);
@@ -40,7 +40,7 @@ function* getChatsWorker() {
 function* searchUsersWorker(action: ReturnType<typeof searchUsers.request>) {
   try {
     // TODO: First search in Contacts, If not found then only search in Global users directory.
-    const users: User[] = yield call(() =>
+    const users: IUser[] = yield call(() =>
       service.userService().searchUsers(action.payload)
     );
     yield put(searchUsers.success({ users }));
@@ -52,7 +52,7 @@ function* searchUsersWorker(action: ReturnType<typeof searchUsers.request>) {
 
 function* searchChatsWorker(action: ReturnType<typeof searchChats.request>) {
   try {
-    const chats: Chat[] = yield call(() => {});
+    const chats: IConversation[] = yield call(() => {});
     yield put(searchChats.success({ chats }));
   } catch (error) {
     console.error(error);
@@ -64,7 +64,7 @@ function* searchContactsWorker(
   action: ReturnType<typeof searchContacts.request>
 ) {
   try {
-    const contacts: Contact[] = yield call(() => {});
+    const contacts: IContact[] = yield call(() => {});
     yield put(searchContacts.success({ contacts }));
   } catch (error) {
     console.error(error);

@@ -1,11 +1,11 @@
-import User from "../../interfaces/modals/User";
+import IUser from "../../interfaces/modals/User";
 import { ActionType } from "typesafe-actions";
 import * as actions from "./actions";
 
 // Describing the shape of the Authentications's slice of store.
 export type AuthStore = Readonly<{
   isLoading: boolean;
-  activeUser: User | null;
+  activeUser: IUser | null;
   loginPhase: "enter-phone-number" | "enter-otp" | "enter-profile-details";
   isFirstTimeLogin: boolean;
   authError: Error | null;

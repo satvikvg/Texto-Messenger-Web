@@ -1,18 +1,19 @@
-import Entity from "./Entity";
 import firebase from "firebase";
+import IUser from "../../../../interfaces/modals/User";
 
-export default class UserProfile extends Entity {
+export default class UserProfile implements IUser {
+  uid: string;
   displayName: string | null;
   email: string | null;
   emailVerified: boolean;
   phoneNumber: string | null;
-
   photoURL: string | null;
-
   userName: string;
   bio: string | null;
   isOnline: boolean;
   lastSeen: Date | null;
+  createdOn: Date;
+  updatedOn: Date;
 
   constructor(
     uid: string,
@@ -24,10 +25,11 @@ export default class UserProfile extends Entity {
     userName: string,
     bio: string | null,
     isOnline: boolean = false,
-    lastSeen: Date | null
+    lastSeen: Date | null,
+    createdOn: Date,
+    updatedOn: Date
   ) {
-    super(uid);
-
+    this.uid = uid;
     this.displayName = displayName;
     this.email = email;
     this.emailVerified = emailVerified;
@@ -37,6 +39,8 @@ export default class UserProfile extends Entity {
     this.bio = bio;
     this.isOnline = isOnline;
     this.lastSeen = lastSeen;
+    this.createdOn = createdOn;
+    this.updatedOn = updatedOn;
   }
 }
 
@@ -54,6 +58,8 @@ function toFirestore(userProfile: UserProfile) {
     lastSeen: userProfile.lastSeen
       ? firebase.firestore.Timestamp.fromDate(userProfile.lastSeen)
       : null,
+    createdOn: firebase.firestore.Timestamp.fromDate(userProfile.createdOn),
+    updatedOn: firebase.firestore.Timestamp.fromDate(userProfile.updatedOn),
   };
 }
 
@@ -77,7 +83,9 @@ function fromFirestore(
     data.isOnline,
     data.lastSeen
       ? (data.lastSeen as firebase.firestore.Timestamp).toDate()
-      : null
+      : null,
+    (data.createdOn as firebase.firestore.Timestamp).toDate(),
+    (data.updatedOn as firebase.firestore.Timestamp).toDate()
   );
 }
 

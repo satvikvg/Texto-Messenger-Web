@@ -11,10 +11,10 @@ import {
   SIGN_OUT_SUCCESS,
   SIGN_OUT_FAILURE,
 } from "./types";
-import User from "../../interfaces/modals/User";
+import IUser from "../../interfaces/modals/User";
 import { createAction, createAsyncAction } from "typesafe-actions";
 
-export const setAuthUser = createAction(SET_AUTH_USER)<User | null>();
+export const setAuthUser = createAction(SET_AUTH_USER)<IUser | null>();
 
 export const setFirstTimeLogin = createAction(SET_FIRST_TIME_LOGIN)<boolean>();
 

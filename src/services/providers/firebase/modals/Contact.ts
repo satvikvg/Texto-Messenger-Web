@@ -1,43 +1,42 @@
-import Entity from "./Entity";
-import Chat from "./Chat";
 import UserProfile from "./UserProfile";
 import firebase from "firebase";
+import IContact from "../../../../interfaces/modals/Contact";
 
-export default class Contact extends Entity {
-  blockedSince: Date | null;
-  chat: Chat | null;
-  createdOn: Date;
-  isBlocked: boolean;
+export default class Contact implements IContact {
+  uid: string;
+  userContact: UserProfile;
   user: UserProfile;
+  blockedSince: Date | null;
+  createdOn: Date;
+  updatedOn: Date;
 
   constructor(
     uid: string,
+    userContact: UserProfile,
+    user: UserProfile,
     blockedSince: Date | null = null,
-    chat: Chat | null = null,
     createdOn: Date,
-    isBlocked: boolean = false,
-    user: UserProfile
+    updatedOn: Date
   ) {
-    super(uid);
-
-    this.blockedSince = blockedSince;
-    this.chat = chat;
-    this.createdOn = createdOn;
-    this.isBlocked = isBlocked;
+    this.uid = uid;
+    this.userContact = userContact;
     this.user = user;
+    this.blockedSince = blockedSince;
+    this.createdOn = createdOn;
+    this.updatedOn = updatedOn;
   }
 }
 
 function toFirestore(contact: Contact) {
   return {
     uid: contact.uid,
+    userContact: contact.userContact,
+    user: contact.user,
     blockedSince: contact.blockedSince
       ? firebase.firestore.Timestamp.fromDate(contact.blockedSince)
       : null,
-    chat: contact.chat,
     createdOn: firebase.firestore.Timestamp.fromDate(contact.createdOn),
-    isBlocked: contact.isBlocked,
-    user: contact.user,
+    updatedOn: firebase.firestore.Timestamp.fromDate(contact.updatedOn),
   };
 }
 
@@ -53,13 +52,13 @@ function fromFirestore(
 
   return new Contact(
     data.uid,
+    data.userContact,
+    data.user,
     data.blockedSince
       ? (data.blockedSince as firebase.firestore.Timestamp).toDate()
       : null,
-    data.chat,
     (data.createdOn as firebase.firestore.Timestamp).toDate(),
-    data.isBlocked,
-    data.user
+    (data.updatedOn as firebase.firestore.Timestamp).toDate()
   );
 }
 

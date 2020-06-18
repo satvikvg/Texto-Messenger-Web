@@ -1,9 +1,16 @@
 import { ChatStore } from "./types";
 import { createReducer } from "typesafe-actions";
-import { getChats, searchUsers, searchChats, searchContacts } from "./actions";
+import {
+  getChats,
+  searchUsers,
+  searchChats,
+  searchContacts,
+  setActiveChat,
+} from "./actions";
 
 const INITIAL_CHATS_STORE: ChatStore = {
   isLoading: false,
+  activeChat: null,
   chats: [],
   searchResults: {
     users: [],
@@ -14,6 +21,12 @@ const INITIAL_CHATS_STORE: ChatStore = {
 };
 
 const reducer = createReducer(INITIAL_CHATS_STORE)
+  // Set activeChat action reducer.
+  .handleAction(setActiveChat, (store, action) => ({
+    ...store,
+    activeChat: action.payload,
+  }))
+
   // Get Chats actions reducer.
   .handleAction(getChats.request, (store, action) => ({
     ...store,

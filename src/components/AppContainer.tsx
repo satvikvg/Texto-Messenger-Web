@@ -17,7 +17,7 @@ import { PrivateRoute } from "../router/PrivateRoute";
 import { routes, privateRoutes } from "../router/routes";
 import Service from "../services/providers/Service";
 import ServiceProviderFactory from "../services/ServiceProvicerFactory";
-import User from "../interfaces/modals/User";
+import IUser from "../interfaces/modals/User";
 import { RootState, RootAction } from "../store";
 import { setAuthUser } from "../store/authentication/actions";
 
@@ -59,7 +59,7 @@ class AppContainer extends Component<IAppContainerProps> {
     );
   }
 
-  handleAuthStateChanged = (user: User | null, error?: Error | null) => {
+  handleAuthStateChanged = (user: IUser | null, error?: Error | null) => {
     this.props.setAuthUserId(user);
 
     if (error) {
@@ -78,7 +78,7 @@ const mapStateToProps = (store: RootState) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<RootAction>) => {
   return {
-    setAuthUserId: (user: User | null) => dispatch(setAuthUser(user)),
+    setAuthUserId: (user: IUser | null) => dispatch(setAuthUser(user)),
   };
 };
 

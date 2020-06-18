@@ -1,11 +1,14 @@
-import Entity from "./Entity";
-import User from "./User";
-import Chat from "./Chat";
+import IEntity from "./Entity";
+import IUser from "./User";
 
-export default interface Contact extends Entity {
+export default interface IContact extends IEntity {
+  userContact: IUser;
+  user: IUser;
   blockedSince: Date | null;
-  chat: Chat | null;
   createdOn: Date;
-  isBlocked: boolean;
-  user: User;
+  updatedOn: Date;
+}
+
+export function isContact(value: any): value is IContact {
+  return (value as IContact).user ? true : false;
 }
