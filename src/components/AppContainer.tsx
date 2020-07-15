@@ -20,6 +20,8 @@ import ServiceProviderFactory from "../services/ServiceProvicerFactory";
 import IUser from "../interfaces/modals/User";
 import { RootState, RootAction } from "../store";
 import { setAuthUser } from "../store/authentication/actions";
+import { AuthenticationSelector } from "../store/authentication/reducer";
+import { SettingsSelectors as SettingsSelector } from "../store/settings/reducer";
 
 type IAppContainerProps = PropsFromRedux & {
   classes: any;
@@ -70,9 +72,9 @@ class AppContainer extends Component<IAppContainerProps> {
 
 const mapStateToProps = (store: RootState) => {
   return {
-    activeUser: store.authentication.activeUser,
-    loginPhase: store.authentication.loginPhase,
-    themeOptions: store.settings.theme,
+    activeUser: AuthenticationSelector.getCurrentUser(store),
+    loginPhase: AuthenticationSelector.getLoginPhase(store),
+    themeOptions: SettingsSelector.getTheme(store),
   };
 };
 

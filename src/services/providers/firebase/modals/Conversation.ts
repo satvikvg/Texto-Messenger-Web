@@ -72,3 +72,5 @@ function fromFirestore(
 }
 
 export const conversationConverter = { toFirestore, fromFirestore };
+
+export type ConversationKeys = keyof Conversation;

@@ -1,6 +1,6 @@
 import UserService from "../../../../interfaces/service/UserService";
 import IUser from "../../../../interfaces/modals/User";
-import { Collections } from "../firestore-constants/fs-constants";
+import { Collections } from "../firestore-utils/fs-constants";
 import firebase from "firebase";
 import UserProfile, { userProfileConverter } from "../modals/UserProfile";
 
@@ -112,22 +112,6 @@ export default class UserFbService implements UserService {
         "Cannot find sign in request initiated, Please initialise a Sign in request first."
       );
     }
-  }
-
-  async searchUsers(searchText: string): Promise<IUser[]> {
-    const querySnapshot = await this.fireStore
-      .collection(Collections.Users)
-      .where("userName", ">=", searchText)
-      .where("userName", "<=", searchText + "\uf8ff")
-      .withConverter(userProfileConverter)
-      .get();
-
-    const users: IUser[] = [];
-    querySnapshot.forEach((document) => {
-      users.push(document.data() as IUser);
-    });
-
-    return users;
   }
 
   signOut(): Promise<void> {

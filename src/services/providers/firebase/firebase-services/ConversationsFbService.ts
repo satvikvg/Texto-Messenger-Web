@@ -1,12 +1,20 @@
-import ChatService from "../../../../interfaces/service/ChatService";
+import ConversationsService from "../../../../interfaces/service/ConversationsService";
 import IConversation from "../../../../interfaces/modals/Conversation";
 import IContact from "../../../../interfaces/modals/Contact";
-import { Collections } from "../firestore-constants/fs-constants";
-import Conversation, { conversationConverter } from "../modals/Conversation";
-import Participant, { participantConverter } from "../modals/Participant";
+import { Collections } from "../firestore-utils/fs-constants";
+import Conversation, {
+  conversationConverter,
+  ConversationKeys,
+} from "../modals/Conversation";
+import Participant, {
+  participantConverter,
+  ParticipantKeys,
+} from "../modals/Participant";
 import IUser from "../../../../interfaces/modals/User";
+import UserProfile from "../modals/UserProfile";
+import IParticipant from "../../../../interfaces/modals/Participant";
 
-export default class ChatFbService implements ChatService {
+export default class ConversationsFbService implements ConversationsService {
   fireStore: firebase.firestore.Firestore;
 
   constructor(firestore: firebase.firestore.Firestore) {
@@ -146,5 +154,52 @@ export default class ChatFbService implements ChatService {
     // Execute batch write into databse.
     await batch.commit();
     return conversation;
+  }
+
+  async getConversations(currentUser: IUser): Promise<IConversation[] | null> {
+    let conversationsResult: IConversation[] | null = null;
+
+    // Keys
+    const participantUserKey: ParticipantKeys = "user";
+
+    const participantsSnapshot = await this.fireStore
+      .collection(Collections.Participants)
+      .where(participantUserKey, "==", currentUser as UserProfile)
+      .withConverter(participantConverter)
+      .get();
+
+    if (!participantsSnapshot.empty) {
+      conversationsResult = participantsSnapshot.docs.map(
+        (doc) => (doc.data() as IParticipant).conversation
+      );
+    }
+
+    return conversationsResult;
+  }
+
+  async searchConversations(
+    searchText: string,
+    currentUser: IUser
+  ): Promise<IConversation[] | null> {
+    let conversationsResult: IConversation[] | null = null;
+
+    // Database column keys;
+    const conversationNameKey: ConversationKeys = "name";
+
+    // TODO: Incomplete, should find only those conversations that user is participant of.
+    const conversationsSnapshot = await this.fireStore
+      .collection(Collections.Conversations)
+      .where(conversationNameKey, ">=", searchText)
+      .where(conversationNameKey, "<=", searchText + "\uf8ff")
+      .withConverter(conversationConverter)
+      .get();
+
+    if (!conversationsSnapshot.empty) {
+      conversationsResult = conversationsSnapshot.docs.map(
+        (doc) => doc.data() as IConversation
+      );
+    }
+
+    return conversationsResult;
   }
 }

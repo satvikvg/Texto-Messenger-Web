@@ -25,6 +25,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 type ContactProps = {
   contact: IContact;
+  onClick: (
+    contact: IContact,
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => void;
 };
 
 export const ContactItem: React.FC<ContactProps> = (props) => {
@@ -37,7 +41,11 @@ export const ContactItem: React.FC<ContactProps> = (props) => {
 
   const classes = useStyles();
   return (
-    <ListItem alignItems="flex-start" button>
+    <ListItem
+      button
+      onClick={(event) => props.onClick(props.contact, event)}
+      alignItems="flex-start"
+    >
       <ListItemAvatar>
         <Avatar alt={primaryText} src={avatarURL} />
       </ListItemAvatar>
@@ -46,12 +54,6 @@ export const ContactItem: React.FC<ContactProps> = (props) => {
           <div className={classes.flex}>
             <Typography variant="body1" className={classes.primaryTextBody}>
               {primaryText}
-            </Typography>
-            <Typography
-              variant="caption"
-              className={classes.primaryTextCaption}
-            >
-              Monday
             </Typography>
           </div>
         }

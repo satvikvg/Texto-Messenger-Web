@@ -60,3 +60,5 @@ function fromFirestore(
 }
 
 export const participantConverter = { toFirestore, fromFirestore };
+
+export type ParticipantKeys = keyof Participant;

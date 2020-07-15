@@ -6,6 +6,7 @@ import {
   fetchUserProfileAsync,
   saveUserProfileAsync,
 } from "./actions";
+import { RootState } from "..";
 
 const INITIAL_SETTINGS_STORE: SettingsStore = {
   isLoading: false,
@@ -54,5 +55,18 @@ const reducer = createReducer(INITIAL_SETTINGS_STORE)
     isLoading: false,
     ...action.payload,
   }));
+
+// Defining selectors for Settings Store.
+const isLoading = (store: RootState) => store.settings.isLoading;
+const getUserProfile = (store: RootState) => store.settings.userProfile;
+const getTheme = (store: RootState) => store.settings.theme;
+const getError = (store: RootState) => store.settings.error;
+
+export const SettingsSelectors = {
+  isLoading,
+  getUserProfile,
+  getTheme,
+  getError,
+};
 
 export default reducer;

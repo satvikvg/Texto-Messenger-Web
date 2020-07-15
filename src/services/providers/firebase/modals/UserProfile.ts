@@ -90,3 +90,5 @@ function fromFirestore(
 }
 
 export const userProfileConverter = { toFirestore, fromFirestore };
+
+export type UserProfileKeys = keyof UserProfile;

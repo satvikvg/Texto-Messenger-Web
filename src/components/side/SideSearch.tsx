@@ -8,7 +8,8 @@ import {
 } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import { useDispatch } from "react-redux";
-import { searchUsers } from "../../store/chats/actions";
+import { searchContacts } from "../../store/contacts/actions";
+import { searchConversations } from "../../store/conversation/actions";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -40,8 +41,9 @@ export const SideSearch: React.FC<ISearchProps> = () => {
   ) => {
     setSearchText(event.target.value);
 
-    if (searchText.substring(0, 1) === "@" && searchText.length > 4) {
-      dispatch(searchUsers.request(searchText.substr(1)));
+    if (searchText.length > 4) {
+      dispatch(searchContacts.request(searchText.trim()));
+      dispatch(searchConversations.request(searchText.trim()));
     }
   };
 

@@ -25,6 +25,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 type UserProps = {
   user: IUser;
+  onClick: (
+    user: IUser,
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => void;
 };
 
 export const UserItem: React.FC<UserProps> = (props) => {
@@ -35,7 +39,11 @@ export const UserItem: React.FC<UserProps> = (props) => {
 
   const classes = useStyles();
   return (
-    <ListItem alignItems="flex-start" button>
+    <ListItem
+      button
+      onClick={(event) => props.onClick(props.user, event)}
+      alignItems="flex-start"
+    >
       <ListItemAvatar>
         <Avatar alt={primaryText} src={avatarURL} />
       </ListItemAvatar>
@@ -44,12 +52,6 @@ export const UserItem: React.FC<UserProps> = (props) => {
           <div className={classes.flex}>
             <Typography variant="body1" className={classes.primaryTextBody}>
               {primaryText}
-            </Typography>
-            <Typography
-              variant="caption"
-              className={classes.primaryTextCaption}
-            >
-              Monday
             </Typography>
           </div>
         }

@@ -7,6 +7,7 @@ import {
   confirmOTP,
   signOut,
 } from "./actions";
+import { RootState } from "..";
 
 const INITIAL_AUTHENTICATION_STORE: AuthenticationStore = {
   isLoading: false,
@@ -70,5 +71,25 @@ const reducer = createReducer(INITIAL_AUTHENTICATION_STORE)
       authError: action.payload,
     })
   );
+
+// Defining all selectores for user.
+const isLoading = (store: RootState) => store.authentication.isLoading;
+
+const getCurrentUser = (store: RootState) => store.authentication.activeUser;
+
+const getLoginPhase = (store: RootState) => store.authentication.loginPhase;
+
+const isFirstTimeLogin = (store: RootState) =>
+  store.authentication.isFirstTimeLogin;
+
+const getError = (store: RootState) => store.authentication.authError;
+
+export const AuthenticationSelector = {
+  isLoading,
+  getCurrentUser,
+  getLoginPhase,
+  isFirstTimeLogin,
+  getError,
+};
 
 export default reducer;

@@ -1,6 +1,8 @@
 import UserProfile from "./UserProfile";
 import firebase from "firebase";
 import IContact from "../../../../interfaces/modals/Contact";
+import { getReference, getFirestoreData } from "../firestore-utils/fs-helpers";
+import { Collections } from "../firestore-utils/fs-constants";
 
 export default class Contact implements IContact {
   uid: string;
@@ -28,10 +30,14 @@ export default class Contact implements IContact {
 }
 
 function toFirestore(contact: Contact) {
+  const userContactRef = getReference(
+    `${Collections.Users}/${contact.userContact.uid}`
+  );
+  const userRef = getReference(`${Collections.Users}/${contact.user.uid}`);
   return {
     uid: contact.uid,
-    userContact: contact.userContact,
-    user: contact.user,
+    userContact: userContactRef,
+    user: userRef,
     blockedSince: contact.blockedSince
       ? firebase.firestore.Timestamp.fromDate(contact.blockedSince)
       : null,
@@ -44,22 +50,33 @@ function fromFirestore(
   snapshot: firebase.firestore.DocumentSnapshot,
   options: firebase.firestore.SnapshotOptions
 ) {
-  const data = snapshot.data();
+  try {
+    const data = snapshot.data();
 
-  if (!data) {
-    return null;
+    if (!data) {
+      return null;
+    }
+
+    const userContact = getFirestoreData<UserProfile>(data.userContact);
+    const user = getFirestoreData<UserProfile>(data.user);
+
+    Promise.all([userContact, user]).then((results) => {
+      return new Contact(
+        data.uid,
+        results[0],
+        results[1],
+        data.blockedSince
+          ? (data.blockedSince as firebase.firestore.Timestamp).toDate()
+          : null,
+        (data.createdOn as firebase.firestore.Timestamp).toDate(),
+        (data.updatedOn as firebase.firestore.Timestamp).toDate()
+      );
+    });
+  } catch (error) {
+    console.error(error);
   }
-
-  return new Contact(
-    data.uid,
-    data.userContact,
-    data.user,
-    data.blockedSince
-      ? (data.blockedSince as firebase.firestore.Timestamp).toDate()
-      : null,
-    (data.createdOn as firebase.firestore.Timestamp).toDate(),
-    (data.updatedOn as firebase.firestore.Timestamp).toDate()
-  );
 }
 
 export const contactConverter = { toFirestore, fromFirestore };
+
+export type ContactKeys = keyof Contact;

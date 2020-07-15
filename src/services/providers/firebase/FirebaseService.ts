@@ -5,6 +5,10 @@ import "firebase/auth";
 import Service from "../Service";
 import UserService from "../../../interfaces/service/UserService";
 import UserFbService from "./firebase-services/UserFbService";
+import ContactsFbService from "./firebase-services/ContactsFbService";
+import ContactsService from "../../../interfaces/service/ContactsService";
+import ConversationsFbService from "./firebase-services/ConversationsFbService";
+import ConversationsService from "../../../interfaces/service/ConversationsService";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -23,6 +27,8 @@ export default class FirebaseService implements Service {
   firestore: firebase.firestore.Firestore;
 
   userFbService: UserFbService;
+  contactsFbService: ContactsFbService;
+  conversationsFbService: ConversationsFbService;
 
   constructor() {
     this.defaultApp = firebase.initializeApp(firebaseConfig);
@@ -38,9 +44,19 @@ export default class FirebaseService implements Service {
     }
 
     this.userFbService = new UserFbService(this.auth, this.firestore);
+    this.contactsFbService = new ContactsFbService(this.firestore);
+    this.conversationsFbService = new ConversationsFbService(this.firestore);
   }
 
   public userService(): UserService {
     return this.userFbService;
+  }
+
+  public contactsService(): ContactsService {
+    return this.contactsFbService;
+  }
+
+  public conversationsService(): ConversationsService {
+    return this.conversationsFbService;
   }
 }
