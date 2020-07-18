@@ -10,11 +10,21 @@ import {
   SIGN_OUT_REQUEST,
   SIGN_OUT_SUCCESS,
   SIGN_OUT_FAILURE,
+  AUTH_STATE_CHANGE_SUBSCRIBE,
+  AUTH_STATE_CHANGE_UNSUBSCRIBE,
 } from "./types";
 import IUser from "../../interfaces/modals/User";
 import { createAction, createAsyncAction } from "typesafe-actions";
 
 export const setAuthUser = createAction(SET_AUTH_USER)<IUser | null>();
+
+export const subscribeAuthState = createAction(AUTH_STATE_CHANGE_SUBSCRIBE)<
+  void
+>();
+
+export const unsubscribeAuthState = createAction(AUTH_STATE_CHANGE_UNSUBSCRIBE)<
+  void
+>();
 
 export const setFirstTimeLogin = createAction(SET_FIRST_TIME_LOGIN)<boolean>();
 

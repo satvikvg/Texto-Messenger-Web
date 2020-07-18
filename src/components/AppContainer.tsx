@@ -1,25 +1,27 @@
+import {
+  createMuiTheme,
+  CssBaseline,
+  Theme,
+  ThemeProvider,
+  withStyles,
+} from "@material-ui/core";
 import React, { Component, Dispatch } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import {
   BrowserRouter as Router,
-  Switch,
-  Route,
   Redirect,
+  Route,
+  Switch,
 } from "react-router-dom";
-import {
-  Theme,
-  withStyles,
-  ThemeProvider,
-  createMuiTheme,
-  CssBaseline,
-} from "@material-ui/core";
 import { PrivateRoute } from "../router/PrivateRoute";
-import { routes, privateRoutes } from "../router/routes";
+import { privateRoutes, routes } from "../router/routes";
 import Service from "../services/providers/Service";
 import ServiceProviderFactory from "../services/ServiceProvicerFactory";
-import IUser from "../interfaces/modals/User";
-import { RootState, RootAction } from "../store";
-import { setAuthUser } from "../store/authentication/actions";
+import { RootAction, RootState } from "../store";
+import {
+  subscribeAuthState,
+  unsubscribeAuthState,
+} from "../store/authentication/actions";
 import { AuthenticationSelector } from "../store/authentication/reducer";
 import { SettingsSelectors as SettingsSelector } from "../store/settings/reducer";
 
@@ -33,8 +35,7 @@ class AppContainer extends Component<IAppContainerProps> {
   service: Service = ServiceProviderFactory.getInstance();
 
   componentDidMount() {
-    // Check how to unsubscribe it.
-    this.service.userService().onAuthStateChanged(this.handleAuthStateChanged);
+    this.props.subscribeAuthStateChange();
   }
 
   render() {
@@ -61,13 +62,9 @@ class AppContainer extends Component<IAppContainerProps> {
     );
   }
 
-  handleAuthStateChanged = (user: IUser | null, error?: Error | null) => {
-    this.props.setAuthUserId(user);
-
-    if (error) {
-      console.error(error);
-    }
-  };
+  componentWillUnmount() {
+    this.props.unsubscribeAuthStateChange();
+  }
 }
 
 const mapStateToProps = (store: RootState) => {
@@ -80,7 +77,8 @@ const mapStateToProps = (store: RootState) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<RootAction>) => {
   return {
-    setAuthUserId: (user: IUser | null) => dispatch(setAuthUser(user)),
+    subscribeAuthStateChange: () => dispatch(subscribeAuthState()),
+    unsubscribeAuthStateChange: () => dispatch(unsubscribeAuthState()),
   };
 };
 

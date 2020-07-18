@@ -67,22 +67,20 @@ export default class UserFbService implements UserService {
       .set(user as UserProfile);
   }
 
-  onAuthStateChanged(
-    callBack: (user: IUser | null, error?: Error | null) => void
-  ) {
-    this.auth.onAuthStateChanged(
+  onAuthStateChanged(callBack: (data: { currentUser: IUser | null }) => void) {
+    const unsubscribe = this.auth.onAuthStateChanged(
       async (fbUser) => {
         if (fbUser) {
           const user = await this.getUserById(fbUser.uid);
-          callBack(user);
-        } else callBack(null);
+          callBack({ currentUser: user });
+        } else callBack({ currentUser: null });
       },
       (error) => {
-        if (error) {
-          callBack(null, new Error(error.message));
-        }
+        throw error;
       }
     );
+
+    return () => unsubscribe();
   }
 
   async signInWithPhoneNumber(

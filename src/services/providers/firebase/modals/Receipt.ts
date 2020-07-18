@@ -3,6 +3,12 @@ import firebase from "firebase";
 import Message from "./Message";
 import Conversation from "./Conversation";
 import UserProfile from "./UserProfile";
+import {
+  getReference,
+  getFirestoreData,
+  createMandatoryPropertyMissingException,
+} from "../firestore-utils/fs-helpers";
+import { Collections } from "../firestore-utils/fs-constants";
 
 export default class Receipt implements IReceipt {
   uid: string;
@@ -38,9 +44,11 @@ export default class Receipt implements IReceipt {
 function toFirestore(receipt: Receipt) {
   return {
     uid: receipt.uid,
-    message: receipt.message,
-    conversation: receipt.conversation,
-    recepiant: receipt.recepiant,
+    message: getReference(`${Collections.Messages}/${receipt.message.uid}`),
+    conversation: getReference(
+      `${Collections.Conversations}/${receipt.conversation.uid}`
+    ),
+    recepiant: getReference(`${Collections.Users}/${receipt.recepiant.uid}`),
     readOn: receipt.readOn
       ? firebase.firestore.Timestamp.fromDate(receipt.readOn)
       : null,
@@ -62,11 +70,22 @@ function fromFirestore(
     return null;
   }
 
+  const message = getFirestoreData<Message>(data.message);
+  const conversation = getFirestoreData<Conversation>(data.conversation);
+  const recepiant = getFirestoreData<UserProfile>(data.recepiant);
+
+  if (!message || !conversation || !recepiant) {
+    throw createMandatoryPropertyMissingException(
+      ["message", "conversation", "recepiant"],
+      Receipt.name
+    );
+  }
+
   return new Receipt(
     data.uid,
-    data.message,
-    data.conversation,
-    data.recepiant,
+    message,
+    conversation,
+    recepiant,
     data.readOn ? (data.readOn as firebase.firestore.Timestamp).toDate() : null,
     data.deliveredOn
       ? (data.deliveredOn as firebase.firestore.Timestamp).toDate()
@@ -77,3 +96,5 @@ function fromFirestore(
 }
 
 export const receiptConverter = { toFirestore, fromFirestore };
+
+export type ReceiptKeys = keyof Receipt;

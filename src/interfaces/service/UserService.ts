@@ -27,8 +27,8 @@ export default interface UserService {
    * @param callBack - A function that will be called when there is any change in authentication state.
    */
   onAuthStateChanged(
-    callBack: (user: IUser | null, error?: Error | null) => void
-  ): void;
+    callBack: (data: { currentUser: IUser | null }) => void
+  ): () => void;
 
   /**
    * Authenticates User using phone number.

@@ -1,7 +1,11 @@
 import UserProfile from "./UserProfile";
 import firebase from "firebase";
 import IContact from "../../../../interfaces/modals/Contact";
-import { getReference, getFirestoreData } from "../firestore-utils/fs-helpers";
+import {
+  getReference,
+  getFirestoreData,
+  createMandatoryPropertyMissingException,
+} from "../firestore-utils/fs-helpers";
 import { Collections } from "../firestore-utils/fs-constants";
 
 export default class Contact implements IContact {
@@ -50,31 +54,32 @@ function fromFirestore(
   snapshot: firebase.firestore.DocumentSnapshot,
   options: firebase.firestore.SnapshotOptions
 ) {
-  try {
-    const data = snapshot.data();
+  const data = snapshot.data();
 
-    if (!data) {
-      return null;
-    }
-
-    const userContact = getFirestoreData<UserProfile>(data.userContact);
-    const user = getFirestoreData<UserProfile>(data.user);
-
-    Promise.all([userContact, user]).then((results) => {
-      return new Contact(
-        data.uid,
-        results[0],
-        results[1],
-        data.blockedSince
-          ? (data.blockedSince as firebase.firestore.Timestamp).toDate()
-          : null,
-        (data.createdOn as firebase.firestore.Timestamp).toDate(),
-        (data.updatedOn as firebase.firestore.Timestamp).toDate()
-      );
-    });
-  } catch (error) {
-    console.error(error);
+  if (!data) {
+    return null;
   }
+
+  const userContact = getFirestoreData<UserProfile>(data.userContact);
+  const user = getFirestoreData<UserProfile>(data.user);
+
+  if (!userContact || !user) {
+    throw createMandatoryPropertyMissingException(
+      ["userContact", "user"],
+      Contact.name
+    );
+  }
+
+  return new Contact(
+    data.uid,
+    userContact,
+    user,
+    data.blockedSince
+      ? (data.blockedSince as firebase.firestore.Timestamp).toDate()
+      : null,
+    (data.createdOn as firebase.firestore.Timestamp).toDate(),
+    (data.updatedOn as firebase.firestore.Timestamp).toDate()
+  );
 }
 
 export const contactConverter = { toFirestore, fromFirestore };

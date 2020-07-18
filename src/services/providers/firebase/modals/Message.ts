@@ -2,6 +2,12 @@ import UserProfile from "./UserProfile";
 import firebase from "firebase";
 import IMessage from "../../../../interfaces/modals/Message";
 import Conversation from "./Conversation";
+import {
+  getReference,
+  getFirestoreData,
+  createMandatoryPropertyMissingException,
+} from "../firestore-utils/fs-helpers";
+import { Collections } from "../firestore-utils/fs-constants";
 
 export default class Message implements IMessage {
   uid: string;
@@ -37,10 +43,12 @@ export default class Message implements IMessage {
 function toFirestore(message: Message) {
   return {
     uid: message.uid,
-    conversation: message.conversation,
+    conversation: getReference(
+      `${Collections.Conversations}/${message.conversation.uid}`
+    ),
     type: message.type,
     messageText: message.messageText,
-    createdBy: message.createdBy,
+    createdBy: getReference(`${Collections.Users}/${message.createdBy.uid}`),
     createdOn: firebase.firestore.Timestamp.fromDate(message.createdOn),
     updatedOn: firebase.firestore.Timestamp.fromDate(message.updatedOn),
     deletedOn: message.deletedOn
@@ -59,12 +67,22 @@ function fromFirestore(
     return null;
   }
 
+  const conversation = getFirestoreData<Conversation>(data.conversation);
+  const createdBy = getFirestoreData<UserProfile>(data.createdBy);
+
+  if (!conversation || !createdBy) {
+    throw createMandatoryPropertyMissingException(
+      ["conversation", "createdBy"],
+      Message.name
+    );
+  }
+
   return new Message(
     data.uid,
-    data.conversation,
+    conversation,
     data.type,
     data.messageText,
-    data.createdBy,
+    createdBy,
     (data.createdOn as firebase.firestore.Timestamp).toDate(),
     (data.updatedOn as firebase.firestore.Timestamp).toDate(),
     data.deletedOn

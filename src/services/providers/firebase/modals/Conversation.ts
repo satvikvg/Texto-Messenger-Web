@@ -1,6 +1,12 @@
 import UserProfile from "./UserProfile";
 import firebase from "firebase";
 import IConversation from "../../../../interfaces/modals/Conversation";
+import {
+  getReference,
+  getFirestoreData,
+  createMandatoryPropertyMissingException,
+} from "../firestore-utils/fs-helpers";
+import { Collections } from "../firestore-utils/fs-constants";
 
 export default class Conversation implements IConversation {
   uid: string;
@@ -42,7 +48,9 @@ function toFirestore(conversation: Conversation) {
     muteTill: conversation.muteTill
       ? firebase.firestore.Timestamp.fromDate(conversation.muteTill)
       : null,
-    createdBy: conversation.createdBy,
+    createdBy: getReference(
+      `${Collections.Users}/${conversation.createdBy.uid}`
+    ),
     createdOn: firebase.firestore.Timestamp.fromDate(conversation.createdOn),
     updatedOn: firebase.firestore.Timestamp.fromDate(conversation.updatedOn),
   };
@@ -57,6 +65,15 @@ function fromFirestore(
     return null;
   }
 
+  const createdBy = getFirestoreData<UserProfile>(data.createdBy);
+
+  if (!createdBy) {
+    throw createMandatoryPropertyMissingException(
+      ["createdBy"],
+      Conversation.name
+    );
+  }
+
   return new Conversation(
     data.uid,
     data.avatarURL,
@@ -65,7 +82,7 @@ function fromFirestore(
     data.muteTill
       ? (data.muteTill as firebase.firestore.Timestamp).toDate()
       : null,
-    data.createdBy,
+    createdBy,
     (data.createdOn as firebase.firestore.Timestamp).toDate(),
     (data.updatedOn as firebase.firestore.Timestamp).toDate()
   );

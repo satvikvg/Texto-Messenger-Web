@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 type ContactProps = {
+  selectedUID: string;
   contact: IContact;
   onClick: (
     contact: IContact,
@@ -42,6 +43,7 @@ export const ContactItem: React.FC<ContactProps> = (props) => {
   const classes = useStyles();
   return (
     <ListItem
+      selected={props.selectedUID === props.contact.uid}
       button
       onClick={(event) => props.onClick(props.contact, event)}
       alignItems="flex-start"

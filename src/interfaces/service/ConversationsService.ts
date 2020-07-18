@@ -1,26 +1,9 @@
-import IContact from "../modals/Contact";
 import IConversation from "../modals/Conversation";
+import IParticipant from "../modals/Participant";
 import IUser from "../modals/User";
+import IReceipt from "../modals/Receipt";
 
 export default interface ConversationsService {
-  /**
-   * Creates a new conversation from the provided contact.
-   * @param contact - Contact against which a conversation to be created.
-   */
-  createConversation(contact: IContact): Promise<IConversation>;
-
-  /**
-   * Creates a Group Conversation.
-   * @param conversationName - Name of the Conversation Group.
-   * @param contacts - Contacts which should be added to the Conversation Group.
-   * @param currentUser - User who is creating the Group Conversation.
-   */
-  createGroupConversation(
-    conversationName: string,
-    contacts: IContact[],
-    currentUser: IUser
-  ): Promise<IConversation>;
-
   /**
    * Gets all the conversation user is participant of.
    * @param currentUser - User instance who's coversations to be fetched.
@@ -36,4 +19,18 @@ export default interface ConversationsService {
     searchText: string,
     currentUser: IUser
   ): Promise<IConversation[] | null>;
+
+  saveConversation(
+    conversation: IConversation,
+    participants?: IParticipant[]
+  ): Promise<{ conversation: IConversation; participants: IParticipant[] }>;
+
+  getReceipts(conversation: IConversation): Promise<IReceipt[] | undefined>;
+
+  subscribeReceipts(
+    conversation: IConversation,
+    callback: (data: { receipts: IReceipt[] | null }) => void
+  ): () => void;
+
+  getParticipants(conversation: IConversation): Promise<IParticipant[]>;
 }

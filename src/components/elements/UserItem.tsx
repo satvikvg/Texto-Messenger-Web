@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 type UserProps = {
+  selectedUID: string;
   user: IUser;
   onClick: (
     user: IUser,
@@ -40,6 +41,7 @@ export const UserItem: React.FC<UserProps> = (props) => {
   const classes = useStyles();
   return (
     <ListItem
+      selected={props.selectedUID === props.user.uid}
       button
       onClick={(event) => props.onClick(props.user, event)}
       alignItems="flex-start"

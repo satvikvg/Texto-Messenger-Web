@@ -12,6 +12,11 @@ export type AuthStore = Readonly<{
 }>;
 
 // Describing the different ACTION NAMES available.
+export const AUTH_STATE_CHANGE_SUBSCRIBE =
+  "com.textomessenger.store.authentication.action.AUTH_STATE_CHANGE_SUBSCRIBE";
+export const AUTH_STATE_CHANGE_UNSUBSCRIBE =
+  "com.textomessenger.store.authentication.action.AUTH_STATE_CHANGE_UNSUBSCRIBE";
+
 export const SET_AUTH_USER =
   "com.textomessenger.store.authentication.action.SET_AUTH_USER";
 export const SET_FIRST_TIME_LOGIN =

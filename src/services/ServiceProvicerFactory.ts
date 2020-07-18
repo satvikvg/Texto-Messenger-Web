@@ -1,5 +1,5 @@
 import Service from "./providers/Service";
-import { ServiceProviders } from "../constants/appConstants";
+import { ServiceProviders } from "../utils/app-constants";
 import FirebaseService from "./providers/firebase/FirebaseService";
 
 export default class ServiceProviderFactory {

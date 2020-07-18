@@ -6,10 +6,13 @@ import {
   Theme,
   createStyles,
 } from "@material-ui/core";
+import { getMessageTime } from "../../utils/date-helpers";
+import IReceipt from "../../interfaces/modals/Receipt";
+import IUser from "../../interfaces/modals/User";
 
 interface IMessageItemProps {
-  isMessageIn?: boolean;
-  message: string;
+  receipt: IReceipt;
+  currentUser: IUser;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -35,8 +38,10 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export const MessageItem: React.FC<IMessageItemProps> = (props) => {
-  const { message, isMessageIn } = props;
+  const { receipt, currentUser } = props;
   const classes = useStyles(props);
+
+  const isMessageIn = receipt.message.createdBy.uid !== currentUser.uid;
 
   return (
     <ListItem
@@ -49,14 +54,12 @@ export const MessageItem: React.FC<IMessageItemProps> = (props) => {
         }`}
       >
         <div>
-          <Typography variant="body1">{message}</Typography>
+          <Typography variant="body1">{receipt.message.messageText}</Typography>
         </div>
-        <Typography variant="caption">9:00 AM</Typography>
+        <Typography variant="caption">
+          {getMessageTime(receipt.message.createdOn)}
+        </Typography>
       </div>
     </ListItem>
   );
-};
-
-MessageItem.defaultProps = {
-  isMessageIn: false,
 };

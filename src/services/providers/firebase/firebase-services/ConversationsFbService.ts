@@ -1,159 +1,23 @@
-import ConversationsService from "../../../../interfaces/service/ConversationsService";
 import IConversation from "../../../../interfaces/modals/Conversation";
-import IContact from "../../../../interfaces/modals/Contact";
+import IParticipant from "../../../../interfaces/modals/Participant";
+import IUser from "../../../../interfaces/modals/User";
+import ConversationsService from "../../../../interfaces/service/ConversationsService";
 import { Collections } from "../firestore-utils/fs-constants";
-import Conversation, {
+import { generateUID, getReference } from "../firestore-utils/fs-helpers";
+import {
   conversationConverter,
   ConversationKeys,
 } from "../modals/Conversation";
-import Participant, {
-  participantConverter,
-  ParticipantKeys,
-} from "../modals/Participant";
-import IUser from "../../../../interfaces/modals/User";
+import { participantConverter, ParticipantKeys } from "../modals/Participant";
 import UserProfile from "../modals/UserProfile";
-import IParticipant from "../../../../interfaces/modals/Participant";
+import IReceipt from "../../../../interfaces/modals/Receipt";
+import { ReceiptKeys, receiptConverter } from "../modals/Receipt";
 
 export default class ConversationsFbService implements ConversationsService {
   fireStore: firebase.firestore.Firestore;
 
   constructor(firestore: firebase.firestore.Firestore) {
     this.fireStore = firestore;
-  }
-
-  async createConversation(contact: IContact): Promise<IConversation> {
-    const currentDate = new Date();
-
-    const conversation: Conversation = {
-      uid: this.fireStore.collection(Collections.Conversations).doc().id,
-      avatarURL: null,
-      name: null,
-      type: "INDIVISUAL",
-      muteTill: null,
-      createdBy: contact.userContact,
-      createdOn: currentDate,
-      updatedOn: currentDate,
-    };
-
-    const participants: Participant[] = [];
-
-    // Add current user as participant into participants list.
-    participants.push({
-      uid: "",
-      conversation: conversation,
-      type: "MEMBER",
-      user: contact.userContact,
-      createdOn: currentDate,
-      updatedOn: currentDate,
-    });
-
-    // Add other user as participant into participants list.
-    participants.push({
-      uid: "",
-      conversation: conversation,
-      type: "MEMBER",
-      user: contact.user,
-      createdOn: currentDate,
-      updatedOn: currentDate,
-    });
-
-    // Create a batch to write all data at once on to databse.
-    const batch = this.fireStore.batch();
-
-    // Add newly created conversation into database.
-    batch.set(
-      this.fireStore
-        .collection(Collections.Conversations)
-        .doc(conversation.uid)
-        .withConverter(conversationConverter),
-      conversation
-    );
-
-    // Add participants into database.
-    participants.forEach((participant) => {
-      batch.set(
-        this.fireStore
-          .collection(Collections.Participants)
-          .doc(participant.uid === "" ? undefined : participant.uid)
-          .withConverter(participantConverter),
-        participant
-      );
-    });
-
-    // Execute batch write into database.
-    await batch.commit();
-
-    return conversation;
-  }
-
-  async createGroupConversation(
-    conversationName: string,
-    contacts: IContact[],
-    currentUser: IUser
-  ): Promise<IConversation> {
-    const currentDate = new Date();
-
-    const conversation: Conversation = {
-      uid: this.fireStore.collection(Collections.Conversations).doc().id,
-      avatarURL: null,
-      name: conversationName,
-      type: "GROUP",
-      muteTill: null,
-      createdBy: currentUser,
-      createdOn: currentDate,
-      updatedOn: currentDate,
-    };
-
-    const participants: Participant[] = [];
-
-    // Add current user as ADMIN participant in participants list.
-    participants.push({
-      uid: "",
-      conversation: conversation,
-      type: "ADMIN",
-      user: currentUser,
-      createdOn: currentDate,
-      updatedOn: currentDate,
-    });
-
-    // Create participants from contacts & add to participnts list.
-    contacts.forEach((contact) =>
-      participants.push({
-        uid: "",
-        conversation: conversation,
-        type: "MEMBER",
-        user: contact.user,
-        createdOn: currentDate,
-        updatedOn: currentDate,
-      })
-    );
-
-    // Create a batch to write all data at once into database.
-    const batch = this.fireStore.batch();
-
-    // Add conversation into database.
-    batch.set(
-      this.fireStore
-        .collection(Collections.Conversations)
-        .doc(conversation.uid)
-        .withConverter(conversationConverter),
-      conversation
-    );
-
-    // Add all participants into database.
-    participants.forEach((participant) =>
-      batch.set(
-        this.fireStore
-          .collection(Collections.Participants)
-          .doc(participant.uid === "" ? undefined : participant.uid)
-          .withConverter(participantConverter),
-        participant
-      )
-    );
-
-    // Execute batch write into databse.
-    await batch.commit();
-    return conversation;
   }
 
   async getConversations(currentUser: IUser): Promise<IConversation[] | null> {
@@ -201,5 +65,136 @@ export default class ConversationsFbService implements ConversationsService {
     }
 
     return conversationsResult;
+  }
+
+  async getReceipts(
+    conversation: IConversation
+  ): Promise<IReceipt[] | undefined> {
+    let receipts: IReceipt[] | undefined;
+
+    const conversationKey: ReceiptKeys = "conversation";
+
+    const receiptsSnapshot = await this.fireStore
+      .collection(Collections.Receipts)
+      .where(
+        conversationKey,
+        "==",
+        getReference(`${Collections.Conversations}/${conversation.uid}`)
+      )
+      .withConverter(receiptConverter)
+      .get();
+
+    if (!receiptsSnapshot.empty) {
+      receipts = receiptsSnapshot.docs.map((doc) => doc.data() as IReceipt);
+    }
+
+    return receipts;
+  }
+
+  subscribeReceipts(
+    conversation: IConversation,
+    callback: (data: { receipts: IReceipt[] | null }) => void
+  ) {
+    let receipts: IReceipt[] | undefined;
+
+    const conversationKey: ReceiptKeys = "conversation";
+
+    const unsubscribe = this.fireStore
+      .collection(Collections.Receipts)
+      .where(
+        conversationKey,
+        "==",
+        getReference(`${Collections.Conversations}/${conversation.uid}`)
+      )
+      .withConverter(receiptConverter)
+      .onSnapshot((receiptsSnapshot) => {
+        if (!receiptsSnapshot.empty) {
+          receipts = receiptsSnapshot.docs.map((doc) => doc.data() as IReceipt);
+          callback({ receipts });
+        }
+      });
+
+    return unsubscribe;
+  }
+
+  async getParticipants(conversation: IConversation): Promise<IParticipant[]> {
+    let participants: IParticipant[];
+
+    const conversationKey: ParticipantKeys = "conversation";
+
+    const participantsSnapshot = await this.fireStore
+      .collection(Collections.Participants)
+      .where(
+        conversationKey,
+        "==",
+        getReference(`${Collections.Conversations}/${conversation.uid}`)
+      )
+      .withConverter(participantConverter)
+      .get();
+
+    if (!participantsSnapshot.empty) {
+      participants = participantsSnapshot.docs.map(
+        (doc) => doc.data() as IParticipant
+      );
+    } else {
+      throw new Error(
+        "Data Error: Provided conversation dosenot have any participants"
+      );
+    }
+
+    return participants;
+  }
+
+  async saveConversation(
+    conversation: IConversation,
+    participants?: IParticipant[]
+  ): Promise<{ conversation: IConversation; participants: IParticipant[] }> {
+    let conversationData: {
+      conversation: IConversation;
+      participants: IParticipant[];
+    };
+
+    // Get a new write batch.
+    const batch = this.fireStore.batch();
+
+    // Generate conversation UID if required & add it to write batch.
+    if (conversation.uid === "") {
+      conversation.uid = generateUID(Collections.Conversations);
+    }
+    batch.set(
+      this.fireStore
+        .collection(Collections.Conversations)
+        .doc(conversation.uid)
+        .withConverter(conversationConverter),
+      conversation
+    );
+
+    // Set this conversation into response object.
+    conversationData = { conversation, participants: [] };
+
+    // For every participant
+    // - Generate new UID if required.
+    // - Add participant data to write batch.
+    if (participants) {
+      participants.forEach((participant) => {
+        if (participant.uid === "") {
+          participant.uid = generateUID(Collections.Participants);
+        }
+        batch.set(
+          this.fireStore
+            .collection(Collections.Participants)
+            .doc(participant.uid)
+            .withConverter(participantConverter),
+          participant
+        );
+
+        conversationData.participants?.push(participant);
+      });
+    }
+
+    // Execute batch write.
+    await batch.commit();
+
+    return conversationData;
   }
 }

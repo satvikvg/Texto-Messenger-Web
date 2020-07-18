@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 type ConversationProps = {
+  selectedUID: string;
   conversation: IConversation;
   onClick: (
     conversation: IConversation,
@@ -32,6 +33,7 @@ type ConversationProps = {
 };
 
 export const ConversationItem: React.FC<ConversationProps> = ({
+  selectedUID,
   conversation,
   onClick,
 }) => {
@@ -42,6 +44,7 @@ export const ConversationItem: React.FC<ConversationProps> = ({
   const classes = useStyles();
   return (
     <ListItem
+      selected={selectedUID === conversation.uid}
       button
       onClick={(event) => onClick(conversation, event)}
       alignItems="flex-start"

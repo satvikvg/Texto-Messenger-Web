@@ -7,19 +7,45 @@ export function getReference(
   return firestore.doc(path);
 }
 
-export async function getFirestoreData<T>(
+export function getFirestoreData<T>(
   ref: firebase.firestore.DocumentReference<any>
-): Promise<T> {
-  let data: T;
+): T | null {
+  let data: T | null | undefined = undefined;
 
-  const snapshot = await ref.get();
+  ref
+    .get()
+    .then((snapshot) => {
+      if (snapshot.exists) {
+        data = snapshot.data() as T;
+      } else {
+        data = null;
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      data = null;
+    })
+    .finally(() => {
+      return data ? data : null;
+    });
 
-  if (snapshot.exists) {
-    data = snapshot.data() as T;
-  } else {
-    throw new Error(
-      "getFirestoreData(): No data found for provided reference."
-    );
-  }
+  // TODO: This is TEMPORARY solution [CAUTION!], Please find better alternative solution.
+  do {} while (data === undefined);
   return data;
+}
+
+export function createMandatoryPropertyMissingException(
+  missingParameters: string[],
+  modalClass: string
+) {
+  const error = new Error(
+    `One or more of ${missingParameters} property elements are missing, but required to construct type '${modalClass}'`
+  );
+  console.error(error);
+  return error;
+}
+
+export function generateUID(collectionPath: string): string {
+  const firestore = firebase.app().firestore();
+  return firestore.collection(collectionPath).doc().id;
 }
